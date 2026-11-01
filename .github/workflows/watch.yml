@@ -1,0 +1,50 @@
+name: job-watcher
+on:
+  schedule:
+    - cron: "*/10 * * * *"   # every 10 min (GitHub may delay a few minutes)
+  workflow_dispatch: {}       # lets you run it manually from the Actions tab
+permissions:
+  contents: write
+concurrency:
+  group: job-watcher
+  cancel-in-progress: false
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # state.json remembers every job already seen; it lives in the Actions cache, not in git
+      - name: Restore state
+        uses: actions/cache/restore@v4
+        with:
+          path: state.json
+          key: job-state-${{ github.run_id }}
+          restore-keys: job-state-
+      - name: Check for new roles
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          JSEARCH_KEY: ${{ secrets.JSEARCH_KEY }}
+          MAX_AGE_H: "12"   # hard cap on posting age, set "6" for stricter
+          ATS_STRICT: "1"
+          HOT_DAYS: "60"
+          SLICES: "6"
+        run: python watcher.py
+      - name: Save state
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: state.json
+          key: job-state-${{ github.run_id }}
+      # GitHub pauses scheduled workflows in repos with no commits for 60 days; a tiny monthly commit prevents that
+      - name: Keepalive
+        run: |
+          if [ "$(date -u +%d%H)" = "0100" ] && [ "$(date -u +%M)" -lt 10 ]; then
+            date -u > .keepalive
+            git config user.name "job-watcher"
+            git config user.email "job-watcher@users.noreply.github.com"
+            git add .keepalive && git commit -m "keepalive [skip ci]" && git push
+          fi
