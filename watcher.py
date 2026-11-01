@@ -31,6 +31,9 @@ STATE = os.path.join(HERE, "state.json")
 CONF = os.path.join(HERE, "companies.json")
 MAX_AGE_H = float(os.environ.get("MAX_AGE_H", "12"))   # never alert on anything older than this
 ATS_STRICT = os.environ.get("ATS_STRICT", "1") != "0"
+COOP_TERMS = set(t.strip() for t in os.environ.get("COOP_TERMS", "Spring 2027,Winter 2027").split(","))
+# career-page internship titles that name a term other than spring/winter get skipped
+OFF_TERM = ("summer", "fall", "autumn")
 HOT_DAYS = float(os.environ.get("HOT_DAYS", "60"))
 SLICES = int(os.environ.get("SLICES", "6"))          # cold boards: each checked once every SLICES runs
 DISCOVER_DAYS = float(os.environ.get("DISCOVER_DAYS", "365"))
@@ -181,8 +184,12 @@ def simplify_matches(listings, now):
             continue
         if x.get("category") not in CATS or x.get("sponsorship") in BAD_SPONSOR:
             continue
-        if track == "Intern" and "Spring 2027" not in (x.get("terms") or []):
-            continue
+        if track == "Intern":
+            terms = set(x.get("terms") or [])
+            t = x.get("title", "").lower()
+            # spring co-ops are listed as "Spring 2027" or "Winter 2027" (Jan start); also co-ops with no term
+            if not (terms & COOP_TERMS or (("co-op" in t or "coop" in t) and terms <= {"N/A"})):
+                continue
         locs = x.get("locations") or []
         if not title_ok(x.get("title", ""), strict=False) or not any(is_us(l) for l in locs):
             continue
@@ -387,6 +394,9 @@ def main():
             ts = j.get("ts")
             if ts is not None and now - ts > MAX_AGE_H * 3600:
                 continue  # an old job that just resurfaced (relisted / search reshuffle), not a fresh posting
+            rl = j["role"].lower()
+            if ("intern" in rl or "co-op" in rl) and any(o in rl for o in OFF_TERM) and "spring" not in rl and "winter" not in rl:
+                continue
             if title_ok(j["role"], ATS_STRICT) and is_us(j["location"]) and not any(c in name.lower() for c in NO_SPONSOR_COS):
                 found = "10 min" if boards[key][3] else "hour"
                 j.update(company=name, track="Career page",
