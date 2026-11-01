@@ -1,0 +1,23 @@
+{
+  "_note": "Company career boards to watch. Slugs are the part of the careers URL after boards.greenhouse.io/, jobs.lever.co/ or jobs.ashbyhq.com/. Bad slugs are logged and skipped. Add or remove freely.",
+  "greenhouse": [
+    "anthropic", "databricks", "stripe", "figma", "airbnb", "discord", "robinhood", "coinbase",
+    "cloudflare", "datadog", "mongodb", "scaleai", "reddit", "pinterest", "lyft", "dropbox",
+    "gitlab", "twilio", "instacart", "doordashusa", "roblox", "asana", "airtable", "brex",
+    "samsara", "waymo", "nuro", "togetherai", "xai", "gleanwork", "affirm", "duolingo",
+    "chime", "faire", "flexport", "gusto", "lattice", "okta", "elastic", "newrelic",
+    "hubspotjobs", "squarespace", "vercel", "cerebrassystems", "sambanovasystems",
+    "runwayml", "characterai", "huggingface", "mosaicml", "pinecone", "weightsbiases", "snorkelai", "applied"
+  ],
+  "lever": ["plaid", "spotify", "mistral", "zoox", "whoop", "attentive", "aurora-innovation", "matchgroup"],
+  "ashby": ["openai", "notion", "ramp", "linear", "cohere", "replit", "modal", "elevenlabs", "harvey",
+            "perplexity", "sierra", "decagon", "cursor", "anysphere", "langchain", "supabase", "posthog", "deepgram"],
+  "workday": [
+    {"name": "NVIDIA", "host": "nvidia.wd5.myworkdayjobs.com", "tenant": "nvidia", "site": "NVIDIAExternalCareerSite"},
+    {"name": "Salesforce", "host": "salesforce.wd12.myworkdayjobs.com", "tenant": "salesforce", "site": "External_Career_Site"},
+    {"name": "Adobe", "host": "adobe.wd5.myworkdayjobs.com", "tenant": "adobe", "site": "external_experienced"},
+    {"name": "Intel", "host": "intel.wd1.myworkdayjobs.com", "tenant": "intel", "site": "External"},
+    {"name": "Snap", "host": "wd1.myworkdaysite.com", "tenant": "snapchat", "site": "snap"}
+  ],
+  "amazon": true
+}
